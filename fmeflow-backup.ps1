@@ -86,7 +86,7 @@ if (-not (Test-Path $FMEFlowRootDir -PathType Container)) {
 
 # Define the relative paths of the items to be backed up
 $relativePaths = @(
-    "Utilities\tomca\conf",                   # Folder
+    "Utilities\tomcat\conf",                  # Folder
     "Server\fmeFlowConfig.txt",               # File
     "Server\fmeCommonConfig.txt",             # File
     "Server\fmeFlowWebApplicationConfig.txt", # File
