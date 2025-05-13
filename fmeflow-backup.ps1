@@ -3,6 +3,7 @@
     Copies specific FME-related files and folders from a user-defined root directory
     into a single timestamped backup folder in the user's home directory.
     Suggests a default FME Flow root directory if not provided.
+    Waits for a key press before exiting when run directly.
 
 .DESCRIPTION
     This script prompts the user for a root FME Flow directory.
@@ -20,6 +21,7 @@
     A single new directory is created in the user's home directory (e.g., C:\Users\YourUserName)
     with a name in the format 'FMEFlow_Backup_yyyyMMdd_HHmmss'.
     All specified source items are then copied into this new timestamped directory.
+    The script will pause at the end, waiting for the user to press Enter before closing the console window.
 
 .PARAMETER FMEFlowRootDir
     The root directory of the FME Flow installation.
@@ -30,13 +32,13 @@
 
     This command will use "D:\CustomFME\FMEFlow" as the root. A single backup folder like
     C:\Users\YourUserName\FMEFlow_Backup_20240515_103000 will be created, and all FME items
-    will be copied into it.
+    will be copied into it. The script will then wait for a key press.
 
 .EXAMPLE
     PS C:\> .\Copy-FMEToUserHomeSingleFolder.ps1
     (Script will then prompt: Please enter the FME Flow Root Directory (default: 'C:\Program Files\FMEFlow'): )
     User can press Enter to accept the default, or type a new path. A single backup folder will be
-    created in their home directory.
+    created in their home directory. The script will then wait for a key press.
 
 .NOTES
     Author: Your Name/AI Assistant
@@ -75,13 +77,16 @@ if ([string]::IsNullOrWhiteSpace($FMEFlowRootDir)) {
 # Validate the provided FMEFlowRootDir
 if (-not (Test-Path $FMEFlowRootDir -PathType Container)) {
     Write-Error "The specified FME Flow Root Directory does not exist or is not a folder: '$FMEFlowRootDir'. Exiting."
+    # Add a pause here as well if exiting due to error when run directly
+    if ($Host.Name -eq "ConsoleHost" -and -not $MyInvocation.Line) {
+        Read-Host "Press Enter to exit..."
+    }
     exit 1
 }
 
 # Define the relative paths of the items to be backed up
 $relativePaths = @(
-    "Utilities\tomcat\conf",                  # Folder
-    "Server\fmeFlowConfig",                   # Folder
+    "Utilities\tomca\conf",                   # Folder
     "Server\fmeFlowConfig.txt",               # File
     "Server\fmeCommonConfig.txt",             # File
     "Server\fmeFlowWebApplicationConfig.txt", # File
@@ -98,6 +103,9 @@ foreach ($relativePathItem in $relativePaths) {
 $backupBaseDir = $env:USERPROFILE
 If (-not (Test-Path $backupBaseDir -PathType Container)) {
     Write-Error "Could not determine or access the user's home directory: '$backupBaseDir'. Exiting."
+    if ($Host.Name -eq "ConsoleHost" -and -not $MyInvocation.Line) {
+        Read-Host "Press Enter to exit..."
+    }
     exit 1
 }
 Write-Host "Backup base directory will be: $backupBaseDir"
@@ -159,6 +167,12 @@ if ($itemsCopiedCount -gt 0) {
 }
 else {
     Write-Host "No backup folder was created, or no items were copied. Check warnings or errors above."
+}
+
+# Pause for user input if the script is run directly (e.g., by double-clicking or "Run with PowerShell")
+# This check avoids pausing when run from an existing PowerShell console or ISE
+if ($Host.Name -eq "ConsoleHost" -and -not $MyInvocation.Line) {
+    Read-Host "`nPress Enter to exit..."
 }
 
 # --- Script End ---
