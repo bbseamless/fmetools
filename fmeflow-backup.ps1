@@ -119,6 +119,9 @@ try {
 }
 catch {
     Write-Error "Failed to create main backup folder: $destinationFolderPath. Error: $($_.Exception.Message)"
+    if ($Host.Name -eq "ConsoleHost" -and -not $MyInvocation.Line) {
+        Read-Host "Press Enter to exit..."
+    }
     exit 1 # Exit if main folder creation fails
 }
 
