@@ -73,6 +73,7 @@ if ([string]::IsNullOrWhiteSpace($FMEFlowRootDir)) {
      Write-Host "Using FME Flow Root Directory from parameter: $FMEFlowRootDir"
 }
 
+Write-Host ""
 
 # Validate the provided FMEFlowRootDir
 if (-not (Test-Path $FMEFlowRootDir -PathType Container)) {
@@ -90,8 +91,15 @@ $relativePaths = @(
     "Server\fmeFlowConfig.txt",               # File
     "Server\fmeCommonConfig.txt",             # File
     "Server\fmeFlowWebApplicationConfig.txt", # File
-    "Server\fmeWebSocketConfig.txt"           # File
+    "Server\fmeWebSocketConfig.txt",               # File
+    "Utilities\jre\lib\security"           # File
 )
+
+foreach ($relativePathItem in $relativePaths) {
+    Write-Host "Item to backup: $relativePathItem" -ForegroundColor Yellow
+}
+
+
 
 # Construct the full source paths
 $SourcePaths = @()
@@ -108,7 +116,12 @@ If (-not (Test-Path $backupBaseDir -PathType Container)) {
     }
     exit 1
 }
+
+Write-Host ""
+
 Write-Host "Backup base directory will be: $backupBaseDir"
+
+Write-Host ""
 
 # Get the current timestamp in a sortable format for the main backup folder name
 $runTimestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -133,8 +146,10 @@ catch {
     exit 1 # Exit if main folder creation fails
 }
 
+Write-Host ""
+
 $itemsCopiedCount = 0
-Write-Host "`n--- Starting Backup Process ---"
+Write-Host "`n--- Starting Backup Process ---" -ForegroundColor Green
 
 # Loop through each source path identified
 foreach ($sourcePath in $SourcePaths) {
@@ -156,8 +171,10 @@ foreach ($sourcePath in $SourcePaths) {
     }
 }
 
-Write-Host "`n--- Script Finished ---"
-Write-Host "All specified FME items have been processed."
+Write-Host "`n--- Script Finished ---" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "All specified items have been processed." -ForegroundColor Green
 
 if ($itemsCopiedCount -gt 0) {
     Write-Host "$itemsCopiedCount item(s) were copied to the backup folder."
